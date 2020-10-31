@@ -94,49 +94,41 @@
         </footer>
     </footer>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.20.0/axios.min.js" integrity="sha512-quHCp3WbBNkwLfYUMd+KwBAgpVukJu5MncuQaWXgCrfgcxCJAq/fo+oqrRKOj+UKEmyMCG3tb8RB63W+EmrOBg==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js" integrity="sha512-s+xg36jbIujB2S2VKfpGmlC3T5V2TF3lY48DX7u2r9XzGzgPsa6wTpOQA7J9iffvdeBN0q9tKzRxVxw1JviZPg==" crossorigin="anonymous"></script>
-    <script>
-        var dataSource = {
-            datasets: [
-                {
-                    data: [],
-                    backgroundColor: [
-                        '#ffcd56',
-                        '#ff6384',
-                        '#36a2eb',
-                        '#fd6b19',
-                        '#ff0000',
-                        '#0000ff',
-                        '#00ff00'
-                        
-                    ],
-                }
-            ],
-            labels: []
-        };
-        
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.0/Chart.min.js" integrity="sha512-a2e0uIwCMIWLGgviK5JYVZw/ntSAehzqM6dPjWTUjUsbVmsKZzCjvdzSCWtd2UWC3OiJwwe5xTwSQRGGAN2ZcQ==" crossorigin="anonymous"></script>    <script>
+       var dataSource = {
+    datasets: [{
+        data: [],
+        backgroundColor: [],
+    }],
+
+    // These labels appear in the legend and in the tooltips when hovering different arcs
+    labels: []
+};
+
         function createChart(){
-            var ctx = document.getElementById("myChart").getContext("2d");
-            var myPieChart = new Chart(ctx, {
+            var ctx = document.getElementById('myChart');
+            var myChart = new Chart(ctx, {
                 type: 'pie',
                 data: dataSource
             });
         }
-        function getBudget() {
-            axios.get('/budget')
-            .then(function (res) {
-                console.log(res.data);
-                for (var i=0; i<res.data.myBudget.length; i++){
-                    dataSource.datasets[0].data[i] = res.data.myBudget[i].budget; 
-                    dataSource.labels[i] = res.data.myBudget[i].title;
+        
+        function getBudget(){
+            axios.get('http://localhost:3000/budget')
+            .then(function (res){
+                for(var i = 0; i < res.data.length; i++){
+                    dataSource.datasets[0].data[i] = res.data[i].budget;
+                    dataSource.labels[i] = res.data[i].title;
+                    dataSource.datasets[0].backgroundColor[i] = res.data[i].color;
                 }
                 createChart();
             });
         }
         getBudget();
     </script>
-
-<script src="https://d3js.org/d3.v3.min.js"></script>
+   
+   
+   <script src="https://d3js.org/d3.v3.min.js"></script>
     <script>
         var svg = d3.select("graph")
                     .append("svg")
@@ -150,7 +142,7 @@
             .attr("class", "lines");
     
         var width = 400,
-            height = 165,
+            height = 150,
             radius = Math.min(width, height) / 2;
     
         var pie = d3.layout.pie()
@@ -188,7 +180,7 @@
         console.log(data)
         var color = d3.scale.ordinal()
                         .domain(dataSource.labels)
-        .range(["#87ceeb", "#ffa500", "#fbccd1", "#d3d3d3", "#808080", "#add8e6", "#ff0000"]);
+        .range(dataSource.datasets[0].backgroundColor);
     
         /* ------- PIE SLICES -------*/
         var slice = svg.select(".slices").selectAll("path.slice")
@@ -279,12 +271,13 @@
             .remove();
     };
     function displayd3jschart(){
-            axios.get('/budget')
+            axios.get('http://localhost:3000/budget')
             .then(function (res){
                 console.log(res);
-                for(var i = 0; i < res.data.myBudget.length; i++){
-                    dataSource.datasets[0].data[i] = res.data.myBudget[i].budget;
-                    dataSource.labels[i] = res.data.myBudget[i].title;
+                for(var i = 0; i < res.data.length; i++){
+                    dataSource.datasets[0].data[i] = res.data[i].budget;
+                    dataSource.labels[i] = res.data[i].title;
+                    dataSource.datasets[0].backgroundColor[i] = res.data[i].color;
                 }
                 change(getJSONData());
             });
